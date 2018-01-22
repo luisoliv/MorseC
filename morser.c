@@ -16,6 +16,15 @@ struct Letter alphabet[38]; //26 letters, 10 numbers, 1 whitespace and 1 for arr
 int last_index = 0;
 
 /*
+	this function does have all the possible failure exits by code
+	with it's error message, obviously because idk about errno.h
+*/
+void failed_exit(int code)
+{
+
+}
+
+/*
 	this function was made only to debug the addition 
 	functionality of the alphabet
 */
@@ -36,6 +45,7 @@ void add_letter(char letter_name, char* morse_version)
 	//debug_added();
 }
 
+//couldnt be made in a loop because there isno math for the morse string
 int create_alphabet()
 {
 	add_letter('a',".-");
@@ -72,31 +82,58 @@ int create_alphabet()
 
 int binary_search(bool type, char* target)
 {
-	int left = 0, right = strlen(alphabet) - 1;
+	int left = 0, right = 37;
 	int middle = right / 2;
-	while(true)
+
+	if(type == 1) //search by letter
 	{
-		if(type == 1) //search by letter
+		while(true)
 		{
+			char source_name = alphabet[middle].latin_name;
+
 			if(left > right)	//doesnt exist, bad letter
-				return NULL;	
-			else if(strcmp(alphabet[middle].latin_name, target) == 0)
+				return NULL;
+			else if(source_name == target)
 				return middle;
-			else if(strcmp(alphabet[middle].latin_name, target) < 0)
+			else if(source_name < target)
 			{
 				left = middle + 1;
 				middle = (left + right) / 2;
 			}
-			else if(strcmp(alphabet[middle].latin_name, target) > 0)
+			else if(source_name > target)
 			{
 				right = middle - 1;
 				middle = (left + right) / 2;
 			}
 		}
-		else //search by morse code
+	}
+	else if(type == 2) //search by morse code
+	{
+		while(true)
 		{
+			//i have to change this to ACTUAL point towards the morses_name ON the array
+			char* source_morse = malloc(strlen(alphabet[middle].morse_name) + 1);
+			strcpy(source_morse, alphabet[middle].morse_name);
 
-		}
+			if(left > right)
+				return NULL;
+			else if(strcmp(source_morse, target) == 0)
+				return middle;
+			else if(strcmp(source_morse, target) < 0)
+			{
+				left = middle + 1;
+				middle = (left + right) / 2;
+			}
+			else if(strcmp(source_morse, target) > 0)
+			{
+				right = middle - 1;
+				middle = (left + right) / 2;	
+			}
+		}		
+	}
+	else
+	{
+		failed_exit(1);
 	}
 }
 
@@ -118,7 +155,11 @@ int main()
 
 	if(create_alphabet() == 0)
 	{
-		parse_to_morse(line);
+		//parse_to_morse(line);
+
+		int index_result = binary_search(1, 'c');
+		printf("\nThe Letter is : %c", alphabet[index_result].latin_name);
+		printf("\nThe morse is : '%s'\n\n", alphabet[index_result].morse_name);
 	}
 	else
 		return 1; //standard erroneous exit
